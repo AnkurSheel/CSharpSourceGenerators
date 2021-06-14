@@ -17,8 +17,9 @@ namespace SourceGeneratorApp
 
         private bool _changesMade;
 
-        public ClientUpdateBuilder() 
+        public ClientUpdateBuilder(ClientId id)
         {
+            _id = id;
         }
 
         public ClientUpdateBuilder UpdateName(string name)
@@ -40,6 +41,11 @@ namespace SourceGeneratorApp
 
         private ClientUpdate BuildUpdate()
             => new ClientUpdate(
+                _id,
+				_name);
+    }
+}
+    => new ClientUpdate(
                 _id,
 				_name);
     }

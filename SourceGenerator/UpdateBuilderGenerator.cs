@@ -79,12 +79,10 @@ namespace {model.GeneratedNamespace}
     {{");
                 AddFields(model, stringBuilder);
 
-                stringBuilder.AppendLine($@"
-        private bool _changesMade;
+                stringBuilder.AppendLine(@"
+        private bool _changesMade;");
 
-        public {model.ClassName}Builder() 
-        {{
-        }}");
+                AddConstructor(model, stringBuilder);
 
                 AddUpdateMethods(model, stringBuilder);
 
@@ -112,6 +110,19 @@ namespace {model.GeneratedNamespace}
                 context.AddSource($"{model.ClassName}Builder", SourceText.From(stringBuilder.ToString(), Encoding.UTF8));
                 context.AddSource("Logs", SourceText.From($@"/*{Environment.NewLine + string.Join(Environment.NewLine, Logs) + Environment.NewLine}*/", Encoding.UTF8));
             }
+        }
+
+        private void AddConstructor(UpdateBuilderModel model, StringBuilder stringBuilder)
+        {
+            var propertiesForConstructor = model.Properties.Where(property => !property.Type.ContainingNamespace.Name.Equals("Optional")).ToList();
+
+            var constructorParameters = string.Join(", ", propertiesForConstructor.Select(x => $"{GetPropertyType(x.Type)} {GetPropertyNameAsVariable(x.Name)}"));
+            var assignments = string.Join($"{Environment.NewLine}", propertiesForConstructor.Select(x => $"{GetPropertyNameAsField(x.Name)} = {GetPropertyNameAsVariable(x.Name)};"));
+            stringBuilder.AppendLine($@"
+        public {model.ClassName}Builder({constructorParameters})
+        {{
+            {assignments}
+        }}");
         }
 
         private void AddUpdateMethods(UpdateBuilderModel model, StringBuilder stringBuilder)
